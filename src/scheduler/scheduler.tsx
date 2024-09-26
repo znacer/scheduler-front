@@ -45,12 +45,13 @@ type MockedSchedule = {
 }
 export function Component() {
   const [filterButtonState, setFilterButtonState] = useState(0);
-  //
+
   //modal
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  // fetch data from backend
   const [mockedSchedulerData, setData] = useState([]);
   useEffect(() => {
     fetch("http://127.0.0.1:3000/scheduler-service/test")
@@ -64,6 +65,7 @@ export function Component() {
 
   }, []);
 
+
   const [range, setRange] = useState({
     startDate: new Date(),
     endDate: new Date()
@@ -74,9 +76,6 @@ export function Component() {
   }, []);
 
   // Filtering events that are included in current date range
-  // Example can be also found on video https://youtu.be/9oy4rTVEfBQ?t=118&si=52BGKSIYz6bTZ7fx
-  // and in the react-scheduler repo App.tsx file https://github.com/Bitnoise/react-scheduler/blob/master/src/App.tsx
-  // const filteredMockedSchedulerData = mockedSchedulerData.map((person) => ({
   const filteredMockedSchedulerData = mockedSchedulerData.map((person: MockedSchedule) => ({
     ...person,
     data: person.data.filter(
