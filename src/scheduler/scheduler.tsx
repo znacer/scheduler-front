@@ -4,9 +4,21 @@ import { useCallback, useState } from "react";
 import moment from "moment";
 
 import { TaskModal } from "./taskmodal";
-import { TaskData, MockedSchedule } from "./types";
+import { TaskData, Schedule } from "./types";
 
 
+const serviceAddress = "http://127.0.0.1:3000/";
+enum RouterEnum {
+  fetchAll = "scheduler/fetch-all",
+  test = "scheduler/test"
+async function endpointCall(route: RouterEnum): Promise<Schedule[]> {
+  let data: Schedule[] = [];
+  if ([RouterEnum.fetchAll, RouterEnum.test].indexOf(route) > -1) {
+    const res = await fetch(serviceAddress + route.valueOf());
+    data = await res.json();
+  }
+  return data;
+}
 export function Component() {
   const [filterButtonState, setFilterButtonState] = useState(0);
 
@@ -17,15 +29,11 @@ export function Component() {
   const handleClose = () => setOpen(false);
 
   // fetch data from backend
-  const [mockedSchedulerData, setData] = useState([]);
+  const [scheduleData, setScheduleData] = useState<Schedule[]>([]);
   useEffect(() => {
-    fetch("http://127.0.0.1:3000/scheduler-service/test")
-      .then((res) => res.json())
-      .then((fetchedData) => {
-        setData(fetchedData);
-      }).catch((err) => {
-        console.error(err.message);
-      })
+    endpointCall(RouterEnum.fetchAll).then((data: Schedule[]) => {
+      setScheduleData(data);
+    })
 
   }, []);
 
@@ -40,7 +48,7 @@ export function Component() {
   }, []);
 
   // Filtering events that are included in current date range
-  const filteredMockedSchedulerData = mockedSchedulerData.map((person: MockedSchedule) => ({
+  const filteredScheduleData = scheduleData.map((person: Schedule) => ({
     ...person,
     data: person.data.filter(
       (project: TaskData) =>
@@ -54,37 +62,39 @@ export function Component() {
 
   return (
     <div>
-      <Scheduler
-        data={filteredMockedSchedulerData}
-        onRangeChange={handleRangeChange}
-        // onTileClick={(clickedResource) => console.log(clickedResource)}
-        onTileClick={(item) => {
-          console.log(item)
-          setSelectedItem(item as TaskData);
-          handleOpen();
         }}
-        onItemClick={(item) => console.log(item)}
-        onFilterData={() => {
-          // Some filtering logic...
-          setFilterButtonState(1);
-        }}
-        onClearFilterData={() => {
-          // Some clearing filters logic...
-          setFilterButtonState(0)
-        }}
-        config={{
-          zoom: 0,
-          filterButtonState,
-          showTooltip: false,
-          defaultTheme: "dark"
-        }}
-      />
+        <Scheduler
+          data={filteredScheduleData}
+          onRangeChange={handleRangeChange}
+          // onTileClick={(clickedResource) => console.log(clickedResource)}
+          onTileClick={(item) => {
+            console.log(item)
+            setSelectedItem(item as TaskData);
+            handleOpen();
+          }}
+          onItemClick={(item) => console.log(item)}
+          onFilterData={() => {
+            // Some filtering logic...
+            setFilterButtonState(1);
+          }}
+          onClearFilterData={() => {
+            // Some clearing filters logic...
+            setFilterButtonState(0)
+          }}
+          config={{
+            zoom: 0,
+            filterButtonState,
+            showTooltip: false,
+            defaultTheme: "dark",
+            showThemeToggle: true
+          }}
+        />
       <TaskModal
         open={open}
         handleClose={handleClose}
         selectedItem={selectedItem}
       />
-    </div>
+    </Box>
   );
 }
 

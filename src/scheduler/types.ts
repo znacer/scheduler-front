@@ -9,7 +9,7 @@ export type TaskData = {
   bgColor: string,
 }
 
-export type MockedSchedule = {
+export type Schedule = {
   id: string,
   label: {
     icon: string,
