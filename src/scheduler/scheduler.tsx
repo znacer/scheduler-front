@@ -5,39 +5,46 @@ import moment from "moment";
 
 import { TaskModal } from "./taskmodal";
 import { TaskData, Schedule } from "./types";
+import { Box, Button } from "@mui/material";
+import { ScheduleDrawer } from "./drawer";
 
-
-const serviceAddress = "http://127.0.0.1:3000/";
-enum RouterEnum {
-  fetchAll = "scheduler/fetch-all",
-  test = "scheduler/test"
-async function endpointCall(route: RouterEnum): Promise<Schedule[]> {
-  let data: Schedule[] = [];
-  if ([RouterEnum.fetchAll, RouterEnum.test].indexOf(route) > -1) {
-    const res = await fetch(serviceAddress + route.valueOf());
-    data = await res.json();
-  }
-  return data;
-}
 export function Component() {
   const [filterButtonState, setFilterButtonState] = useState(0);
 
   //modal
   const [open, setOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<TaskData>();
+  const [selectedItem, setSelectedItem] = useState<TaskData>({
+    id: "",
+    startDate: new Date(),
+    endDate: new Date(),
+    occupancy: 0,
+    title: "",
+    subtitle: "",
+    description: "",
+    bgColor: "",
+  });
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  // fetch data from backend
+  //Schedule is a state to make it reactive when there is changes
   const [scheduleData, setScheduleData] = useState<Schedule[]>([]);
-  useEffect(() => {
-    endpointCall(RouterEnum.fetchAll).then((data: Schedule[]) => {
-      setScheduleData(data);
-    })
 
-  }, []);
+  const setScheduleDataFromItem = (item: TaskData) => {
+    const newSchedule = scheduleData.map((schedule: Schedule) => {
+      schedule.data = schedule.data.map((elt: TaskData) => {
+        if (elt.id === item.id) {
+          elt = item
+        }
+        return elt;
+      });
+      return schedule;
+    });
+    setScheduleData(newSchedule);
+  }
 
+  useEffect(() => { }, [scheduleData]);
 
+  //layout options
   const [range, setRange] = useState({
     startDate: new Date(),
     endDate: new Date()
@@ -59,16 +66,32 @@ export function Component() {
           moment(project.endDate).isAfter(range.endDate, "day"))
     )
   }))
+  const [openSideBar, setOpenSideBar] = useState(false);
+
+  const toggleDrawer = (newOpen: boolean) => () => {
+    setOpenSideBar(newOpen);
+  };
 
   return (
-    <div>
+    <Box
+      sx={{
+        p: 0,
+        m: 0,
+      }}
+      onContextMenu={(e) => { e.preventDefault(); toggleDrawer(true)(); }}
+    >
+      <Box
+        sx={{
+          // position: "relative",
+          minHeight: 0.9 * window.innerHeight + 'px',
+          minWidth: window.innerWidth + 'px',
+
         }}
+      >
         <Scheduler
           data={filteredScheduleData}
           onRangeChange={handleRangeChange}
-          // onTileClick={(clickedResource) => console.log(clickedResource)}
           onTileClick={(item) => {
-            console.log(item)
             setSelectedItem(item as TaskData);
             handleOpen();
           }}
@@ -89,10 +112,18 @@ export function Component() {
             showThemeToggle: true
           }}
         />
+      </Box>
+      <ScheduleDrawer
+        open={openSideBar}
+        handleClose={toggleDrawer(false)}
+        setData={setScheduleData}
+      />
+      <Button onClick={toggleDrawer(true)}>Open drawer</Button>
       <TaskModal
         open={open}
         handleClose={handleClose}
         selectedItem={selectedItem}
+        setItem={setScheduleDataFromItem}
       />
     </Box>
   );

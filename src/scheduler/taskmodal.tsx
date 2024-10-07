@@ -7,6 +7,7 @@ import { Button, ButtonGroup, FormControl, TextField } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import moment from 'moment';
 import { TaskData } from './types';
+import { endpointCall, RouterEnum } from './endpoint';
 
 const style = {
   position: 'absolute' as const,
@@ -26,9 +27,22 @@ const style = {
 interface TaskModalProp {
   open: boolean,
   handleClose: () => void,
-  selectedItem: TaskData
+  selectedItem: TaskData,
+  setItem: (item: TaskData) => void
 }
 export function TaskModal(props: TaskModalProp) {
+  if (props.selectedItem === undefined) {
+    return (
+      <>
+      </>
+    )
+  }
+  const item = { ...props.selectedItem } as TaskData;
+
+  const handleClick = () => {
+    endpointCall(RouterEnum.updateTask, item);
+    props.setItem(item);
+  };
 
   return (
     <Modal
@@ -57,6 +71,9 @@ export function TaskModal(props: TaskModalProp) {
               id="outlined-required"
               label="Nom"
               defaultValue={props.selectedItem?.title}
+              onChange={(e) => {
+                item.title = e.target.value;
+              }}
             />
             <TextField
               sx={{ my: 1 }}
@@ -64,6 +81,9 @@ export function TaskModal(props: TaskModalProp) {
               id="outlined-required"
               label="ID"
               defaultValue={props.selectedItem?.id}
+              onChange={(e) => {
+                item.id = e.target.value;
+              }}
             />
             <TextField
               sx={{ my: 1 }}
@@ -71,6 +91,9 @@ export function TaskModal(props: TaskModalProp) {
               id="outlined-required"
               label="subtitle"
               defaultValue={props.selectedItem?.subtitle}
+              onChange={(e) => {
+                item.subtitle = e.target.value;
+              }}
             />
             <TextField
               sx={{ my: 1 }}
@@ -78,6 +101,9 @@ export function TaskModal(props: TaskModalProp) {
               id="outlined-required"
               label="description"
               defaultValue={props.selectedItem?.description}
+              onChange={(e) => {
+                item.description = e.target.value;
+              }}
             />
 
             <TextField
@@ -86,21 +112,34 @@ export function TaskModal(props: TaskModalProp) {
               id="outlined-required"
               label="Couleur"
               defaultValue={props.selectedItem?.bgColor}
+              onChange={(e) => {
+                item.bgColor = e.target.value;
+              }}
             />
             <DateTimePicker
               sx={{ my: 1 }}
               label="Date de début"
               defaultValue={moment(props.selectedItem?.startDate)}
+              onChange={(e) => {
+                if (e !== null) {
+                  item.startDate = new Date(e.format());
+                }
+              }}
             />
 
             <DateTimePicker
               sx={{ my: 1 }}
               label="Date de fin"
               defaultValue={moment(props.selectedItem?.endDate)}
+              onChange={(e) => {
+                if (e !== null) {
+                  item.endDate = new Date(e.format());
+                }
+              }}
             />
             <ButtonGroup variant="contained" aria-label="" sx={{ justifyContent: "end", mt: 2 }}>
               <Button>Reset</Button>
-              <Button>Apply</Button>
+              <Button onClick={handleClick}>Apply</Button>
             </ButtonGroup>
           </FormControl>
         </Box>
