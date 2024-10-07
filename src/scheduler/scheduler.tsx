@@ -4,32 +4,47 @@ import { useCallback, useState } from "react";
 import moment from "moment";
 
 import { TaskModal } from "./taskmodal";
-import { TaskData, MockedSchedule } from "./types";
-
+import { TaskData, Schedule } from "./types";
+import { Box, Button } from "@mui/material";
+import { ScheduleDrawer } from "./drawer";
 
 export function Component() {
   const [filterButtonState, setFilterButtonState] = useState(0);
 
   //modal
   const [open, setOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<TaskData>();
+  const [selectedItem, setSelectedItem] = useState<TaskData>({
+    id: "",
+    startDate: new Date(),
+    endDate: new Date(),
+    occupancy: 0,
+    title: "",
+    subtitle: "",
+    description: "",
+    bgColor: "",
+  });
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  // fetch data from backend
-  const [mockedSchedulerData, setData] = useState([]);
-  useEffect(() => {
-    fetch("http://127.0.0.1:3000/scheduler-service/test")
-      .then((res) => res.json())
-      .then((fetchedData) => {
-        setData(fetchedData);
-      }).catch((err) => {
-        console.error(err.message);
-      })
+  //Schedule is a state to make it reactive when there is changes
+  const [scheduleData, setScheduleData] = useState<Schedule[]>([]);
 
-  }, []);
+  const setScheduleDataFromItem = (item: TaskData) => {
+    const newSchedule = scheduleData.map((schedule: Schedule) => {
+      schedule.data = schedule.data.map((elt: TaskData) => {
+        if (elt.id === item.id) {
+          elt = item
+        }
+        return elt;
+      });
+      return schedule;
+    });
+    setScheduleData(newSchedule);
+  }
 
+  useEffect(() => { }, [scheduleData]);
 
+  //layout options
   const [range, setRange] = useState({
     startDate: new Date(),
     endDate: new Date()
@@ -40,7 +55,7 @@ export function Component() {
   }, []);
 
   // Filtering events that are included in current date range
-  const filteredMockedSchedulerData = mockedSchedulerData.map((person: MockedSchedule) => ({
+  const filteredScheduleData = scheduleData.map((person: Schedule) => ({
     ...person,
     data: person.data.filter(
       (project: TaskData) =>
@@ -51,40 +66,66 @@ export function Component() {
           moment(project.endDate).isAfter(range.endDate, "day"))
     )
   }))
+  const [openSideBar, setOpenSideBar] = useState(false);
+
+  const toggleDrawer = (newOpen: boolean) => () => {
+    setOpenSideBar(newOpen);
+  };
 
   return (
-    <div>
-      <Scheduler
-        data={filteredMockedSchedulerData}
-        onRangeChange={handleRangeChange}
-        // onTileClick={(clickedResource) => console.log(clickedResource)}
-        onTileClick={(item) => {
-          console.log(item)
-          setSelectedItem(item as TaskData);
-          handleOpen();
+    <Box
+      sx={{
+        p: 0,
+        m: 0,
+      }}
+      onContextMenu={(e) => { e.preventDefault(); toggleDrawer(true)(); }}
+    >
+      <Box
+        sx={{
+          // position: "relative",
+          minHeight: 0.9 * window.innerHeight + 'px',
+          minWidth: window.innerWidth + 'px',
+
         }}
-        onItemClick={(item) => console.log(item)}
-        onFilterData={() => {
-          // Some filtering logic...
-          setFilterButtonState(1);
-        }}
-        onClearFilterData={() => {
-          // Some clearing filters logic...
-          setFilterButtonState(0)
-        }}
-        config={{
-          zoom: 0,
-          filterButtonState,
-          showTooltip: false,
-          defaultTheme: "dark"
-        }}
+      >
+        <Scheduler
+          data={filteredScheduleData}
+          onRangeChange={handleRangeChange}
+          onTileClick={(item) => {
+            setSelectedItem(item as TaskData);
+            handleOpen();
+          }}
+          onItemClick={(item) => console.log(item)}
+          onFilterData={() => {
+            // Some filtering logic...
+            setFilterButtonState(1);
+          }}
+          onClearFilterData={() => {
+            // Some clearing filters logic...
+            setFilterButtonState(0)
+          }}
+          config={{
+            zoom: 0,
+            filterButtonState,
+            showTooltip: false,
+            defaultTheme: "dark",
+            showThemeToggle: true
+          }}
+        />
+      </Box>
+      <ScheduleDrawer
+        open={openSideBar}
+        handleClose={toggleDrawer(false)}
+        setData={setScheduleData}
       />
+      <Button onClick={toggleDrawer(true)}>Open drawer</Button>
       <TaskModal
         open={open}
         handleClose={handleClose}
         selectedItem={selectedItem}
+        setItem={setScheduleDataFromItem}
       />
-    </div>
+    </Box>
   );
 }
 
