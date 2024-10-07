@@ -7,12 +7,13 @@ import { TaskModal } from "./taskmodal";
 import { TaskData, Schedule } from "./types";
 import { Box, Button } from "@mui/material";
 import { ScheduleDrawer } from "./drawer";
+import { RowModal } from "./rowmodal";
 
 export function Component() {
   const [filterButtonState, setFilterButtonState] = useState(0);
 
-  //modal
-  const [open, setOpen] = useState(false);
+  //modals
+  const [openTaskModal, setOpenTaskModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<TaskData>({
     id: "",
     startDate: new Date(),
@@ -23,14 +24,28 @@ export function Component() {
     description: "",
     bgColor: "",
   });
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleOpenTask = () => setOpenTaskModal(true);
+  const handleCloseTask = () => setOpenTaskModal(false);
+
+  const [openRowModal, setOpenRowModal] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<Schedule>();
+  const setScheduleDataFromRow = (item: Schedule) => {
+    const newSchedules = scheduleData.map((schedule: Schedule) => {
+      if (schedule.id === item.id) {
+        schedule.label = item.label
+      }
+      return schedule;
+    });
+    setScheduleData(newSchedules);
+  }
+  const handleOpenRow = () => setOpenRowModal(true);
+  const handleCloseRow = () => setOpenRowModal(false);
 
   //Schedule is a state to make it reactive when there is changes
   const [scheduleData, setScheduleData] = useState<Schedule[]>([]);
 
   const setScheduleDataFromItem = (item: TaskData) => {
-    const newSchedule = scheduleData.map((schedule: Schedule) => {
+    const newSchedules = scheduleData.map((schedule: Schedule) => {
       schedule.data = schedule.data.map((elt: TaskData) => {
         if (elt.id === item.id) {
           elt = item
@@ -39,7 +54,7 @@ export function Component() {
       });
       return schedule;
     });
-    setScheduleData(newSchedule);
+    setScheduleData(newSchedules);
   }
 
   useEffect(() => { }, [scheduleData]);
@@ -85,7 +100,6 @@ export function Component() {
           // position: "relative",
           minHeight: 0.9 * window.innerHeight + 'px',
           minWidth: window.innerWidth + 'px',
-
         }}
       >
         <Scheduler
@@ -93,9 +107,13 @@ export function Component() {
           onRangeChange={handleRangeChange}
           onTileClick={(item) => {
             setSelectedItem(item as TaskData);
-            handleOpen();
+            handleOpenTask();
           }}
-          onItemClick={(item) => console.log(item)}
+          onItemClick={(item) => {
+            console.log(item);
+            setSelectedRow(scheduleData.find((schedule: Schedule) => schedule.id === item.id));
+            handleOpenRow();
+          }}
           onFilterData={() => {
             // Some filtering logic...
             setFilterButtonState(1);
@@ -120,10 +138,18 @@ export function Component() {
       />
       <Button onClick={toggleDrawer(true)}>Open drawer</Button>
       <TaskModal
-        open={open}
-        handleClose={handleClose}
+        open={openTaskModal}
+        handleClose={handleCloseTask}
         selectedItem={selectedItem}
         setItem={setScheduleDataFromItem}
+      />
+      <RowModal 
+        open={openRowModal}
+        handleClose={handleCloseRow}
+        selectedItem={selectedRow}
+        setItem={setScheduleDataFromRow}
+        setOpenTaskModal={handleOpenTask}
+        setSelectedItem={setSelectedItem}
       />
     </Box>
   );

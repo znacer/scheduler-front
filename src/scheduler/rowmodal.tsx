@@ -4,10 +4,10 @@ import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import Typography from '@mui/material/Typography';
 import { Button, ButtonGroup, FormControl, TextField } from "@mui/material";
-import { DateTimePicker } from "@mui/x-date-pickers";
-import moment from 'moment';
-import { TaskData } from './types';
+import {v4 as uuidv4 } from 'uuid';
+import { Schedule, TaskData } from './types';
 import { endpointCall, RouterEnum } from './endpoint';
+import { Dispatch, SetStateAction } from 'react';
 
 const style = {
   position: 'absolute' as const,
@@ -24,24 +24,44 @@ const style = {
   // height: 700,
 };
 
-interface TaskModalProp {
+interface RowModalProp {
   open: boolean,
   handleClose: () => void,
-  selectedItem: TaskData,
-  setItem: (item: TaskData) => void
+  selectedItem: Schedule | undefined,
+  setItem: (item: Schedule) => void,
+  setOpenTaskModal: () => void,
+  setSelectedItem: Dispatch<SetStateAction<TaskData>>
 }
-export function TaskModal(props: TaskModalProp) {
+export function RowModal(props: RowModalProp) {
   if (props.selectedItem === undefined) {
     return (
       <>
       </>
     )
   }
-  const item = { ...props.selectedItem } as TaskData;
+  const item = { ...props.selectedItem } as Schedule;
 
   const handleClick = () => {
-    endpointCall(RouterEnum.updateTask, item);
+    console.log(item);
+    endpointCall(RouterEnum.updateSchedule, item);
     props.setItem(item);
+  };
+
+  const handleNewTask = () => {
+    const newTask: TaskData = {
+      id: uuidv4(),
+      title: "titre",
+      subtitle: "subtitle",
+      description: "",
+      bgColor: "rgb(31,119,180)",
+      startDate: new Date(),
+      endDate: new Date(),
+      occupancy: 0
+    };
+    props.setSelectedItem(newTask);
+    props.setOpenTaskModal();
+    //TODO: if and only if applyied in the task modal, add the new task in the list of tasks of the schedule
+
   };
 
   return (
@@ -61,7 +81,7 @@ export function TaskModal(props: TaskModalProp) {
       <Fade in={props.open}>
         <Box component="form" sx={style}>
           <Typography id="transition-modal-title" variant="h6" component="h2" align="center" >
-            Details on the tile
+          Edit the row
           </Typography>
           <FormControl sx={{ width: '100%' }}>
 
@@ -70,9 +90,9 @@ export function TaskModal(props: TaskModalProp) {
               required
               id="outlined-required"
               label="Nom"
-              defaultValue={props.selectedItem?.title}
+              defaultValue={props.selectedItem?.label.title}
               onChange={(e) => {
-                item.title = e.target.value;
+                item.label.title = e.target.value;
               }}
             />
             <TextField
@@ -90,57 +110,15 @@ export function TaskModal(props: TaskModalProp) {
               required
               id="outlined-required"
               label="subtitle"
-              defaultValue={props.selectedItem?.subtitle}
+              defaultValue={props.selectedItem?.label.subtitle}
               onChange={(e) => {
-                item.subtitle = e.target.value;
-              }}
-            />
-            <TextField
-              sx={{ my: 1 }}
-              required
-              id="outlined-required"
-              label="description"
-              defaultValue={props.selectedItem?.description}
-              onChange={(e) => {
-                item.description = e.target.value;
-              }}
-            />
-
-            <TextField
-              sx={{ my: 1 }}
-              required
-              id="outlined-required"
-              label="Couleur"
-              defaultValue={props.selectedItem?.bgColor}
-              onChange={(e) => {
-                item.bgColor = e.target.value;
-              }}
-            />
-            <DateTimePicker
-              sx={{ my: 1 }}
-              label="Date de début"
-              defaultValue={moment(props.selectedItem?.startDate)}
-              onChange={(e) => {
-                if (e !== null) {
-                  item.startDate = new Date(e.format());
-                }
-              }}
-            />
-
-            <DateTimePicker
-              sx={{ my: 1 }}
-              label="Date de fin"
-              defaultValue={moment(props.selectedItem?.endDate)}
-              onChange={(e) => {
-                if (e !== null) {
-                  item.endDate = new Date(e.format());
-                }
+                item.label.subtitle = e.target.value;
               }}
             />
             <ButtonGroup variant="contained" aria-label="" sx={{ justifyContent: "end", mt: 2 }}>
-              {/*TODO: ADD a remove button to delete a task ? or just */}
-              <Button color='error' onClick={() => {props.handleClose();}}>Cancel</Button>
-              <Button onClick={handleClick}>Apply</Button>
+              <Button onClick={handleNewTask}>New Task</Button>
+              <Button color='error' onClick={() => {props.handleClose();}}>Reset</Button>
+              <Button color='success' onClick={handleClick}>Apply</Button>
             </ButtonGroup>
           </FormControl>
         </Box>
