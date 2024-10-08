@@ -23,7 +23,7 @@ class ScheduleStore {
   }
 
   updateTask(item: TaskData) {
-    schedulesStore.schedules  = schedulesStore.schedules.map((schedule: Schedule) => {
+    this.schedules = this.schedules.map((schedule: Schedule) => {
       schedule.data = schedule.data.map((elt: TaskData) => {
         if (elt.id === item.id) {
           elt = item
@@ -35,10 +35,17 @@ class ScheduleStore {
   }
 
   updateSchedule(item: Schedule) {
-    schedulesStore.schedules = schedulesStore.schedules.map((schedule: Schedule) => {
+    this.schedules = this.schedules.map((schedule: Schedule) => {
       if (schedule.id === item.id) {
         schedule.label = item.label
       }
+      return schedule;
+    });
+  }
+
+  removeTask(itemId: string) {
+    this.schedules = this.schedules.map((schedule: Schedule) => {
+      schedule.data = schedule.data.filter((elt: TaskData) => elt.id !== itemId);
       return schedule;
     });
   }

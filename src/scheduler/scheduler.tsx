@@ -1,4 +1,5 @@
 import { Scheduler } from "@bitnoi.se/react-scheduler";
+// import { Scheduler } from "react-scheduler"
 import { useCallback, useState } from "react";
 import moment from "moment";
 import { observer } from "mobx-react"
@@ -9,22 +10,23 @@ import { Box, Button } from "@mui/material";
 import { ScheduleDrawer } from "./drawer";
 import { RowModal } from "./rowmodal";
 import schedulesStore from "../stores/schedules.store";
+import selectedItemStore from "../stores/selectedItem.store";
 
 export const Component = observer(() => {
   const [filterButtonState, setFilterButtonState] = useState(0);
 
   //modals
   const [openTaskModal, setOpenTaskModal] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<TaskData>({
-    id: "",
-    startDate: new Date(),
-    endDate: new Date(),
-    occupancy: 0,
-    title: "",
-    subtitle: "",
-    description: "",
-    bgColor: "",
-  });
+  // const [selectedItem, setSelectedItem] = useState<TaskData>({
+  //   id: "",
+  //   startDate: new Date(),
+  //   endDate: new Date(),
+  //   occupancy: 0,
+  //   title: "",
+  //   subtitle: "",
+  //   description: "",
+  //   bgColor: "",
+  // });
   const handleOpenTask = () => setOpenTaskModal(true);
   const handleCloseTask = () => setOpenTaskModal(false);
 
@@ -81,7 +83,8 @@ export const Component = observer(() => {
           data={filteredScheduleData}
           onRangeChange={handleRangeChange}
           onTileClick={(item) => {
-            setSelectedItem(item as TaskData);
+            // setSelectedItem(item as TaskData);
+            selectedItemStore.setItem(item as TaskData)
             handleOpenTask();
           }}
           onItemClick={(item) => {
@@ -103,6 +106,7 @@ export const Component = observer(() => {
             showTooltip: false,
             defaultTheme: "dark",
             showThemeToggle: true,
+            lang: 'fr'
           }}
         />
       </Box>
@@ -114,14 +118,13 @@ export const Component = observer(() => {
       <TaskModal
         open={openTaskModal}
         handleClose={handleCloseTask}
-        selectedItem={selectedItem}
+        selectedRow={selectedRow}
       />
       <RowModal
         open={openRowModal}
         handleClose={handleCloseRow}
-        selectedItem={selectedRow}
+        selectedRow={selectedRow}
         setOpenTaskModal={handleOpenTask}
-        setSelectedItem={setSelectedItem}
       />
     </Box>
   );

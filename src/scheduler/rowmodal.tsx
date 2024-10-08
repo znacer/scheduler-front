@@ -4,11 +4,10 @@ import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import Typography from '@mui/material/Typography';
 import { Button, ButtonGroup, FormControl, TextField } from "@mui/material";
-import {v4 as uuidv4 } from 'uuid';
-import { Schedule, TaskData } from './types';
+import { Schedule } from './types';
 import { endpointCall, RouterEnum } from './endpoint';
-import { Dispatch, SetStateAction } from 'react';
 import schedulesStore from '../stores/schedules.store';
+import selectedItemStore from '../stores/selectedItem.store';
 
 const style = {
   position: 'absolute' as const,
@@ -28,18 +27,17 @@ const style = {
 interface RowModalProp {
   open: boolean,
   handleClose: () => void,
-  selectedItem: Schedule | undefined,
+  selectedRow: Schedule | undefined,
   setOpenTaskModal: () => void,
-  setSelectedItem: Dispatch<SetStateAction<TaskData>>
 }
 export function RowModal(props: RowModalProp) {
-  if (props.selectedItem === undefined) {
+  if (props.selectedRow === undefined) {
     return (
       <>
       </>
     )
   }
-  const item = { ...props.selectedItem } as Schedule;
+  const item = { ...props.selectedRow } as Schedule;
 
   const handleClick = () => {
     console.log(item);
@@ -48,17 +46,8 @@ export function RowModal(props: RowModalProp) {
   };
 
   const handleNewTask = () => {
-    const newTask: TaskData = {
-      id: uuidv4(),
-      title: "titre",
-      subtitle: "subtitle",
-      description: "",
-      bgColor: "rgb(31,119,180)",
-      startDate: new Date(),
-      endDate: new Date(),
-      occupancy: 0
-    };
-    props.setSelectedItem(newTask);
+    selectedItemStore.newItem();
+    console.log(selectedItemStore.target_id)
     props.setOpenTaskModal();
     //TODO: if and only if applyied in the task modal, add the new task in the list of tasks of the schedule
 
@@ -81,7 +70,7 @@ export function RowModal(props: RowModalProp) {
       <Fade in={props.open}>
         <Box component="form" sx={style}>
           <Typography id="transition-modal-title" variant="h6" component="h2" align="center" >
-          Edit the row
+            Edit the row
           </Typography>
           <FormControl sx={{ width: '100%' }}>
 
@@ -90,7 +79,7 @@ export function RowModal(props: RowModalProp) {
               required
               id="outlined-required"
               label="Nom"
-              defaultValue={props.selectedItem?.label.title}
+              defaultValue={props.selectedRow?.label.title}
               onChange={(e) => {
                 item.label.title = e.target.value;
               }}
@@ -100,7 +89,7 @@ export function RowModal(props: RowModalProp) {
               required
               id="outlined-required"
               label="ID"
-              defaultValue={props.selectedItem?.id}
+              defaultValue={props.selectedRow?.id}
               onChange={(e) => {
                 item.id = e.target.value;
               }}
@@ -110,14 +99,14 @@ export function RowModal(props: RowModalProp) {
               required
               id="outlined-required"
               label="subtitle"
-              defaultValue={props.selectedItem?.label.subtitle}
+              defaultValue={props.selectedRow?.label.subtitle}
               onChange={(e) => {
                 item.label.subtitle = e.target.value;
               }}
             />
             <ButtonGroup variant="contained" aria-label="" sx={{ justifyContent: "end", mt: 2 }}>
               <Button onClick={handleNewTask}>New Task</Button>
-              <Button color='error' onClick={() => {props.handleClose();}}>Reset</Button>
+              <Button color='error' onClick={() => { props.handleClose(); }}>Reset</Button>
               <Button color='success' onClick={handleClick}>Apply</Button>
             </ButtonGroup>
           </FormControl>
