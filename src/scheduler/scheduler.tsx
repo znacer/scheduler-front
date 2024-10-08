@@ -1,48 +1,40 @@
-import { useEffect } from "react";
 import { Scheduler } from "@bitnoi.se/react-scheduler";
+// import { Scheduler } from "react-scheduler"
 import { useCallback, useState } from "react";
 import moment from "moment";
+import { observer } from "mobx-react"
 
 import { TaskModal } from "./taskmodal";
 import { TaskData, Schedule } from "./types";
 import { Box, Button } from "@mui/material";
 import { ScheduleDrawer } from "./drawer";
+import { RowModal } from "./rowmodal";
+import schedulesStore from "../stores/schedules.store";
+import selectedItemStore from "../stores/selectedItem.store";
 
-export function Component() {
+export const Component = observer(() => {
   const [filterButtonState, setFilterButtonState] = useState(0);
 
-  //modal
-  const [open, setOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<TaskData>({
-    id: "",
-    startDate: new Date(),
-    endDate: new Date(),
-    occupancy: 0,
-    title: "",
-    subtitle: "",
-    description: "",
-    bgColor: "",
-  });
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  //modals
+  const [openTaskModal, setOpenTaskModal] = useState(false);
+  // const [selectedItem, setSelectedItem] = useState<TaskData>({
+  //   id: "",
+  //   startDate: new Date(),
+  //   endDate: new Date(),
+  //   occupancy: 0,
+  //   title: "",
+  //   subtitle: "",
+  //   description: "",
+  //   bgColor: "",
+  // });
+  const handleOpenTask = () => setOpenTaskModal(true);
+  const handleCloseTask = () => setOpenTaskModal(false);
 
-  //Schedule is a state to make it reactive when there is changes
-  const [scheduleData, setScheduleData] = useState<Schedule[]>([]);
+  const [openRowModal, setOpenRowModal] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<Schedule>();
 
-  const setScheduleDataFromItem = (item: TaskData) => {
-    const newSchedule = scheduleData.map((schedule: Schedule) => {
-      schedule.data = schedule.data.map((elt: TaskData) => {
-        if (elt.id === item.id) {
-          elt = item
-        }
-        return elt;
-      });
-      return schedule;
-    });
-    setScheduleData(newSchedule);
-  }
-
-  useEffect(() => { }, [scheduleData]);
+  const handleOpenRow = () => setOpenRowModal(true);
+  const handleCloseRow = () => setOpenRowModal(false);
 
   //layout options
   const [range, setRange] = useState({
@@ -55,7 +47,7 @@ export function Component() {
   }, []);
 
   // Filtering events that are included in current date range
-  const filteredScheduleData = scheduleData.map((person: Schedule) => ({
+  const filteredScheduleData = schedulesStore.schedules.map((person: Schedule) => ({
     ...person,
     data: person.data.filter(
       (project: TaskData) =>
@@ -85,17 +77,21 @@ export function Component() {
           // position: "relative",
           minHeight: 0.9 * window.innerHeight + 'px',
           minWidth: window.innerWidth + 'px',
-
         }}
       >
         <Scheduler
           data={filteredScheduleData}
           onRangeChange={handleRangeChange}
           onTileClick={(item) => {
-            setSelectedItem(item as TaskData);
-            handleOpen();
+            // setSelectedItem(item as TaskData);
+            selectedItemStore.setItem(item as TaskData)
+            handleOpenTask();
           }}
-          onItemClick={(item) => console.log(item)}
+          onItemClick={(item) => {
+            console.log(item);
+            setSelectedRow(schedulesStore.schedules.find((schedule: Schedule) => schedule.id === item.id));
+            handleOpenRow();
+          }}
           onFilterData={() => {
             // Some filtering logic...
             setFilterButtonState(1);
@@ -109,24 +105,29 @@ export function Component() {
             filterButtonState,
             showTooltip: false,
             defaultTheme: "dark",
-            showThemeToggle: true
+            showThemeToggle: true,
+            lang: 'fr'
           }}
         />
       </Box>
       <ScheduleDrawer
         open={openSideBar}
         handleClose={toggleDrawer(false)}
-        setData={setScheduleData}
       />
       <Button onClick={toggleDrawer(true)}>Open drawer</Button>
       <TaskModal
-        open={open}
-        handleClose={handleClose}
-        selectedItem={selectedItem}
-        setItem={setScheduleDataFromItem}
+        open={openTaskModal}
+        handleClose={handleCloseTask}
+        selectedRow={selectedRow}
+      />
+      <RowModal
+        open={openRowModal}
+        handleClose={handleCloseRow}
+        selectedRow={selectedRow}
+        setOpenTaskModal={handleOpenTask}
       />
     </Box>
   );
-}
+})
 
 export default Component;

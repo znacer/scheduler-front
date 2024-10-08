@@ -6,8 +6,10 @@ import Typography from '@mui/material/Typography';
 import { Button, ButtonGroup, FormControl, TextField } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import moment from 'moment';
-import { TaskData } from './types';
+import { Schedule } from './types';
 import { endpointCall, RouterEnum } from './endpoint';
+import schedulesStore from '../stores/schedules.store';
+import selectedItemStore from '../stores/selectedItem.store';
 
 const style = {
   position: 'absolute' as const,
@@ -27,22 +29,31 @@ const style = {
 interface TaskModalProp {
   open: boolean,
   handleClose: () => void,
-  selectedItem: TaskData,
-  setItem: (item: TaskData) => void
+  selectedRow: Schedule | undefined,
 }
 export function TaskModal(props: TaskModalProp) {
-  if (props.selectedItem === undefined) {
-    return (
-      <>
-      </>
-    )
-  }
-  const item = { ...props.selectedItem } as TaskData;
 
-  const handleClick = () => {
-    endpointCall(RouterEnum.updateTask, item);
-    props.setItem(item);
+  const handleApplyClick = () => {
   };
+  const handleSaveClick = () => {
+    if (props.selectedRow !== undefined) {
+      const idx = schedulesStore.schedules.findIndex(elt => elt.id === props.selectedRow?.id);
+      schedulesStore.schedules[idx].data.push(selectedItemStore.item);
+      endpointCall(RouterEnum.updateSchedule, schedulesStore.schedules[idx]);
+    } else {
+      schedulesStore.updateTask(selectedItemStore.item);
+      endpointCall(RouterEnum.updateTask, selectedItemStore.item);
+    }
+    props.handleClose();
+  };
+  const handleDelete = () => {
+    if (selectedItemStore.target_id !== undefined) {
+      const idx = schedulesStore.schedules.findIndex(elt => elt.id === props.selectedRow?.id);
+      schedulesStore.removeTask(selectedItemStore.target_id);
+      endpointCall(RouterEnum.updateSchedule, schedulesStore.schedules[idx]);
+    }
+    props.handleClose();
+  }
 
   return (
     <Modal
@@ -70,9 +81,9 @@ export function TaskModal(props: TaskModalProp) {
               required
               id="outlined-required"
               label="Nom"
-              defaultValue={props.selectedItem?.title}
+              defaultValue={selectedItemStore.item.title}
               onChange={(e) => {
-                item.title = e.target.value;
+                selectedItemStore.item.title = e.target.value;
               }}
             />
             <TextField
@@ -80,9 +91,9 @@ export function TaskModal(props: TaskModalProp) {
               required
               id="outlined-required"
               label="ID"
-              defaultValue={props.selectedItem?.id}
+              defaultValue={selectedItemStore.item.id}
               onChange={(e) => {
-                item.id = e.target.value;
+                selectedItemStore.item.id = e.target.value;
               }}
             />
             <TextField
@@ -90,9 +101,9 @@ export function TaskModal(props: TaskModalProp) {
               required
               id="outlined-required"
               label="subtitle"
-              defaultValue={props.selectedItem?.subtitle}
+              defaultValue={selectedItemStore.item.subtitle}
               onChange={(e) => {
-                item.subtitle = e.target.value;
+                selectedItemStore.item.subtitle = e.target.value;
               }}
             />
             <TextField
@@ -100,9 +111,9 @@ export function TaskModal(props: TaskModalProp) {
               required
               id="outlined-required"
               label="description"
-              defaultValue={props.selectedItem?.description}
+              defaultValue={selectedItemStore.item.description}
               onChange={(e) => {
-                item.description = e.target.value;
+                selectedItemStore.item.description = e.target.value;
               }}
             />
 
@@ -111,18 +122,18 @@ export function TaskModal(props: TaskModalProp) {
               required
               id="outlined-required"
               label="Couleur"
-              defaultValue={props.selectedItem?.bgColor}
+              defaultValue={selectedItemStore.item.bgColor}
               onChange={(e) => {
-                item.bgColor = e.target.value;
+                selectedItemStore.item.bgColor = e.target.value;
               }}
             />
             <DateTimePicker
               sx={{ my: 1 }}
               label="Date de début"
-              defaultValue={moment(props.selectedItem?.startDate)}
+              defaultValue={moment(selectedItemStore.item.startDate)}
               onChange={(e) => {
                 if (e !== null) {
-                  item.startDate = new Date(e.format());
+                  selectedItemStore.item.startDate = new Date(e.format());
                 }
               }}
             />
@@ -130,16 +141,17 @@ export function TaskModal(props: TaskModalProp) {
             <DateTimePicker
               sx={{ my: 1 }}
               label="Date de fin"
-              defaultValue={moment(props.selectedItem?.endDate)}
+              defaultValue={moment(selectedItemStore.item.endDate)}
               onChange={(e) => {
                 if (e !== null) {
-                  item.endDate = new Date(e.format());
+                  selectedItemStore.item.endDate = new Date(e.format());
                 }
               }}
             />
             <ButtonGroup variant="contained" aria-label="" sx={{ justifyContent: "end", mt: 2 }}>
-              <Button>Reset</Button>
-              <Button onClick={handleClick}>Apply</Button>
+              <Button color='error' onClick={handleDelete}>Delete</Button>
+              <Button onClick={handleApplyClick}>Apply</Button>
+              <Button onClick={handleSaveClick}>Save</Button>
             </ButtonGroup>
           </FormControl>
         </Box>

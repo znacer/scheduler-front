@@ -2,12 +2,11 @@ import { Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, Lis
 import DownloadIcon from '@mui/icons-material/Download';
 import { endpointCall, RouterEnum } from "./endpoint";
 import { Schedule } from "./types";
-import { Dispatch, SetStateAction } from "react";
+import schedulesStore from "../stores/schedules.store";
 
 interface ScheduleDrawerProp {
   open: boolean,
   handleClose: () => void,
-  setData: Dispatch<SetStateAction<Schedule[]>>
 }
 export function ScheduleDrawer(props: ScheduleDrawerProp) {
   return (
@@ -20,9 +19,8 @@ export function ScheduleDrawer(props: ScheduleDrawerProp) {
                 <DownloadIcon />
               </ListItemIcon>
               <ListItemText primary="test" onClick={() => {
-                endpointCall(RouterEnum.test).then((data: Schedule[]) => {
-                  console.log(1)
-                  props.setData(data);
+                endpointCall(RouterEnum.test, {}).then((data: Schedule[]) => {
+                  schedulesStore.refresh(data);
                 })
               }} />
             </ListItemButton>
@@ -31,8 +29,8 @@ export function ScheduleDrawer(props: ScheduleDrawerProp) {
                 <DownloadIcon />
               </ListItemIcon>
               <ListItemText primary="fetch_all" onClick={() => {
-                endpointCall(RouterEnum.fetchAll).then((data: Schedule[]) => {
-                  props.setData(data);
+                endpointCall(RouterEnum.fetchAll, {}).then((data: Schedule[]) => {
+                  schedulesStore.refresh(data);
                 })
               }} />
             </ListItemButton>

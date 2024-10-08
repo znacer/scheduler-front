@@ -17,5 +17,4 @@ export type Schedule = {
     subtitle: string,
   },
   data: TaskData[]
-
 }
