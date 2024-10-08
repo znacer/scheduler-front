@@ -1,15 +1,16 @@
-import { useEffect } from "react";
 import { Scheduler } from "@bitnoi.se/react-scheduler";
 import { useCallback, useState } from "react";
 import moment from "moment";
+import { observer } from "mobx-react"
 
 import { TaskModal } from "./taskmodal";
 import { TaskData, Schedule } from "./types";
 import { Box, Button } from "@mui/material";
 import { ScheduleDrawer } from "./drawer";
 import { RowModal } from "./rowmodal";
+import schedulesStore from "../stores/schedules.store";
 
-export function Component() {
+export const Component = observer(() => {
   const [filterButtonState, setFilterButtonState] = useState(0);
 
   //modals
@@ -29,35 +30,9 @@ export function Component() {
 
   const [openRowModal, setOpenRowModal] = useState(false);
   const [selectedRow, setSelectedRow] = useState<Schedule>();
-  const setScheduleDataFromRow = (item: Schedule) => {
-    const newSchedules = scheduleData.map((schedule: Schedule) => {
-      if (schedule.id === item.id) {
-        schedule.label = item.label
-      }
-      return schedule;
-    });
-    setScheduleData(newSchedules);
-  }
+
   const handleOpenRow = () => setOpenRowModal(true);
   const handleCloseRow = () => setOpenRowModal(false);
-
-  //Schedule is a state to make it reactive when there is changes
-  const [scheduleData, setScheduleData] = useState<Schedule[]>([]);
-
-  const setScheduleDataFromItem = (item: TaskData) => {
-    const newSchedules = scheduleData.map((schedule: Schedule) => {
-      schedule.data = schedule.data.map((elt: TaskData) => {
-        if (elt.id === item.id) {
-          elt = item
-        }
-        return elt;
-      });
-      return schedule;
-    });
-    setScheduleData(newSchedules);
-  }
-
-  useEffect(() => { }, [scheduleData]);
 
   //layout options
   const [range, setRange] = useState({
@@ -70,7 +45,7 @@ export function Component() {
   }, []);
 
   // Filtering events that are included in current date range
-  const filteredScheduleData = scheduleData.map((person: Schedule) => ({
+  const filteredScheduleData = schedulesStore.schedules.map((person: Schedule) => ({
     ...person,
     data: person.data.filter(
       (project: TaskData) =>
@@ -111,7 +86,7 @@ export function Component() {
           }}
           onItemClick={(item) => {
             console.log(item);
-            setSelectedRow(scheduleData.find((schedule: Schedule) => schedule.id === item.id));
+            setSelectedRow(schedulesStore.schedules.find((schedule: Schedule) => schedule.id === item.id));
             handleOpenRow();
           }}
           onFilterData={() => {
@@ -127,32 +102,29 @@ export function Component() {
             filterButtonState,
             showTooltip: false,
             defaultTheme: "dark",
-            showThemeToggle: true
+            showThemeToggle: true,
           }}
         />
       </Box>
       <ScheduleDrawer
         open={openSideBar}
         handleClose={toggleDrawer(false)}
-        setData={setScheduleData}
       />
       <Button onClick={toggleDrawer(true)}>Open drawer</Button>
       <TaskModal
         open={openTaskModal}
         handleClose={handleCloseTask}
         selectedItem={selectedItem}
-        setItem={setScheduleDataFromItem}
       />
-      <RowModal 
+      <RowModal
         open={openRowModal}
         handleClose={handleCloseRow}
         selectedItem={selectedRow}
-        setItem={setScheduleDataFromRow}
         setOpenTaskModal={handleOpenTask}
         setSelectedItem={setSelectedItem}
       />
     </Box>
   );
-}
+})
 
 export default Component;

@@ -8,6 +8,7 @@ import {v4 as uuidv4 } from 'uuid';
 import { Schedule, TaskData } from './types';
 import { endpointCall, RouterEnum } from './endpoint';
 import { Dispatch, SetStateAction } from 'react';
+import schedulesStore from '../stores/schedules.store';
 
 const style = {
   position: 'absolute' as const,
@@ -28,7 +29,6 @@ interface RowModalProp {
   open: boolean,
   handleClose: () => void,
   selectedItem: Schedule | undefined,
-  setItem: (item: Schedule) => void,
   setOpenTaskModal: () => void,
   setSelectedItem: Dispatch<SetStateAction<TaskData>>
 }
@@ -44,7 +44,7 @@ export function RowModal(props: RowModalProp) {
   const handleClick = () => {
     console.log(item);
     endpointCall(RouterEnum.updateSchedule, item);
-    props.setItem(item);
+    schedulesStore.updateSchedule(item);
   };
 
   const handleNewTask = () => {

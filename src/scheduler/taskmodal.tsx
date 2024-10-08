@@ -8,6 +8,7 @@ import { DateTimePicker } from "@mui/x-date-pickers";
 import moment from 'moment';
 import { TaskData } from './types';
 import { endpointCall, RouterEnum } from './endpoint';
+import schedulesStore from '../stores/schedules.store';
 
 const style = {
   position: 'absolute' as const,
@@ -28,7 +29,7 @@ interface TaskModalProp {
   open: boolean,
   handleClose: () => void,
   selectedItem: TaskData,
-  setItem: (item: TaskData) => void
+  // setItem: (item: TaskData) => void
 }
 export function TaskModal(props: TaskModalProp) {
   if (props.selectedItem === undefined) {
@@ -41,7 +42,7 @@ export function TaskModal(props: TaskModalProp) {
 
   const handleClick = () => {
     endpointCall(RouterEnum.updateTask, item);
-    props.setItem(item);
+    schedulesStore.updateTask(item);
   };
 
   return (
