@@ -7,7 +7,7 @@ import { Button, ButtonGroup, FormControl, TextField } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import moment from 'moment';
 import { Schedule } from './types';
-import { endpointCall, RouterEnum } from './endpoint';
+import { endpointCall, endpointUpdateAllSchedules, RouterEnum } from './endpoint';
 import schedulesStore from '../stores/schedules.store';
 import selectedItemStore from '../stores/selectedItem.store';
 
@@ -48,9 +48,8 @@ export function TaskModal(props: TaskModalProp) {
   };
   const handleDelete = () => {
     if (selectedItemStore.target_id !== undefined) {
-      const idx = schedulesStore.schedules.findIndex(elt => elt.id === props.selectedRow?.id);
       schedulesStore.removeTask(selectedItemStore.target_id);
-      endpointCall(RouterEnum.updateSchedule, schedulesStore.schedules[idx]);
+      endpointUpdateAllSchedules(schedulesStore.schedules);
     }
     props.handleClose();
   }

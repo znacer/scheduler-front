@@ -27,3 +27,9 @@ export async function endpointCall(route: RouterEnum, payload: object): Promise<
   }
   return data;
 }
+
+export async function endpointUpdateAllSchedules(payload: Schedule[]) {
+  payload.forEach((schedule) => {
+    endpointCall(RouterEnum.updateSchedule, schedule);
+  })
+}
