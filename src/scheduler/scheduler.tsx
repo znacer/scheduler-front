@@ -17,16 +17,6 @@ export const Component = observer(() => {
 
   //modals
   const [openTaskModal, setOpenTaskModal] = useState(false);
-  // const [selectedItem, setSelectedItem] = useState<TaskData>({
-  //   id: "",
-  //   startDate: new Date(),
-  //   endDate: new Date(),
-  //   occupancy: 0,
-  //   title: "",
-  //   subtitle: "",
-  //   description: "",
-  //   bgColor: "",
-  // });
   const handleOpenTask = () => setOpenTaskModal(true);
   const handleCloseTask = () => setOpenTaskModal(false);
 
