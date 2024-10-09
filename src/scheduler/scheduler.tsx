@@ -1,5 +1,5 @@
 import { Scheduler } from "@bitnoi.se/react-scheduler";
-import { Box, Button } from "@mui/material";
+import { Box } from "@mui/material";
 import { useCallback, useState } from "react";
 import moment from "moment";
 import { observer } from "mobx-react"
@@ -8,6 +8,7 @@ import { TaskModal } from "./taskmodal";
 import { TaskData, Schedule } from "./types";
 import { ScheduleDrawer } from "./drawer";
 import { RowModal } from "./rowmodal";
+import { NewPlanModal } from "./newplanmodal";
 import schedulesStore from "../stores/schedules.store";
 import selectedItemStore from "../stores/selectedItem.store";
 
@@ -25,6 +26,9 @@ export const Component = observer(() => {
   const handleOpenRow = () => setOpenRowModal(true);
   const handleCloseRow = () => setOpenRowModal(false);
 
+  const [openNewPlanModal, setNewPlanModal] = useState(false);
+  const handleOpenNewPlan = () => setNewPlanModal(true);
+  const handleCloseNewPlan = () => setNewPlanModal(false);
   //layout options
   const [range, setRange] = useState({
     startDate: new Date(),
@@ -47,7 +51,7 @@ export const Component = observer(() => {
           moment(project.endDate).isAfter(range.endDate, "day"))
     )
   }))
-  const [openSideBar, setOpenSideBar] = useState(false);
+  const [openSideBar, setOpenSideBar] = useState(true);
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpenSideBar(newOpen);
@@ -65,7 +69,7 @@ export const Component = observer(() => {
         sx={{
           // position: "relative",
           minHeight: 0.9 * window.innerHeight + 'px',
-          minWidth: window.innerWidth + 'px',
+          minWidth: 0.9 * window.innerWidth + 'px',
         }}
       >
         <Scheduler
@@ -102,8 +106,8 @@ export const Component = observer(() => {
       <ScheduleDrawer
         open={openSideBar}
         handleClose={toggleDrawer(false)}
+        handleOpenNewPlan={handleOpenNewPlan}
       />
-      <Button onClick={toggleDrawer(true)}>Open drawer</Button>
       <TaskModal
         open={openTaskModal}
         handleClose={handleCloseTask}
@@ -114,6 +118,10 @@ export const Component = observer(() => {
         handleClose={handleCloseRow}
         selectedRow={selectedRow}
         setOpenTaskModal={handleOpenTask}
+      />
+      <NewPlanModal
+        open={openNewPlanModal}
+        handleClose={handleCloseNewPlan}
       />
     </Box>
   );

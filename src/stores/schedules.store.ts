@@ -50,6 +50,14 @@ class ScheduleStore {
     });
   }
 
+  reset() {
+    this.schedules = [];
+  }
+
+  addSchedule(schedule: Schedule) {
+    this.schedules.push(schedule);
+  }
+
 }
 
 const schedulesStore = new ScheduleStore();

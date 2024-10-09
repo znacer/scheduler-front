@@ -18,3 +18,10 @@ export type Schedule = {
   },
   data: TaskData[]
 }
+
+export type ScheduleList = {
+    id: string,
+    title: string,
+    subtitle: string,
+    icon: string,
+}
