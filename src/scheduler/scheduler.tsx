@@ -1,32 +1,47 @@
 import { Scheduler } from "@bitnoi.se/react-scheduler";
-// import { Scheduler } from "react-scheduler"
+import { Box } from "@mui/material";
 import { useCallback, useState } from "react";
 import moment from "moment";
+import frDayjsTranslations from "dayjs/locale/fr";
 import { observer } from "mobx-react"
 
 import { TaskModal } from "./taskmodal";
-import { TaskData, Schedule } from "./types";
-import { Box, Button } from "@mui/material";
+import { TaskData, Schedule, LocaleType } from "./types";
 import { ScheduleDrawer } from "./drawer";
 import { RowModal } from "./rowmodal";
+import { NewPlanModal } from "./newplanmodal";
 import schedulesStore from "../stores/schedules.store";
 import selectedItemStore from "../stores/selectedItem.store";
 
+const langs: LocaleType[] = [
+  {
+    id: "fr",
+    lang: {
+      feelingEmpty: "Aucun calendrier n'est chargé",
+      free: "Libre",
+      loadNext: "Suivant",
+      loadPrevious: "Précédent",
+      over: "over",
+      taken: "occupé",
+      topbar: {
+        filters: "Filtres",
+        next: "suivant",
+        prev: "précédent",
+        today: "Aujourd'hui",
+        view: "Vue"
+      },
+      search: "recherche",
+      week: "Semaine"
+    },
+    translateCode: "fr-FR",
+    dayjsTranslations: frDayjsTranslations
+  }
+];
 export const Component = observer(() => {
   const [filterButtonState, setFilterButtonState] = useState(0);
 
   //modals
   const [openTaskModal, setOpenTaskModal] = useState(false);
-  // const [selectedItem, setSelectedItem] = useState<TaskData>({
-  //   id: "",
-  //   startDate: new Date(),
-  //   endDate: new Date(),
-  //   occupancy: 0,
-  //   title: "",
-  //   subtitle: "",
-  //   description: "",
-  //   bgColor: "",
-  // });
   const handleOpenTask = () => setOpenTaskModal(true);
   const handleCloseTask = () => setOpenTaskModal(false);
 
@@ -36,6 +51,9 @@ export const Component = observer(() => {
   const handleOpenRow = () => setOpenRowModal(true);
   const handleCloseRow = () => setOpenRowModal(false);
 
+  const [openNewPlanModal, setNewPlanModal] = useState(false);
+  const handleOpenNewPlan = () => setNewPlanModal(true);
+  const handleCloseNewPlan = () => setNewPlanModal(false);
   //layout options
   const [range, setRange] = useState({
     startDate: new Date(),
@@ -58,7 +76,7 @@ export const Component = observer(() => {
           moment(project.endDate).isAfter(range.endDate, "day"))
     )
   }))
-  const [openSideBar, setOpenSideBar] = useState(false);
+  const [openSideBar, setOpenSideBar] = useState(true);
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpenSideBar(newOpen);
@@ -76,7 +94,7 @@ export const Component = observer(() => {
         sx={{
           // position: "relative",
           minHeight: 0.9 * window.innerHeight + 'px',
-          minWidth: window.innerWidth + 'px',
+          minWidth: 0.9 * window.innerWidth + 'px',
         }}
       >
         <Scheduler
@@ -106,6 +124,7 @@ export const Component = observer(() => {
             showTooltip: false,
             defaultTheme: "dark",
             showThemeToggle: true,
+            translations: langs,
             lang: 'fr'
           }}
         />
@@ -113,8 +132,8 @@ export const Component = observer(() => {
       <ScheduleDrawer
         open={openSideBar}
         handleClose={toggleDrawer(false)}
+        handleOpenNewPlan={handleOpenNewPlan}
       />
-      <Button onClick={toggleDrawer(true)}>Open drawer</Button>
       <TaskModal
         open={openTaskModal}
         handleClose={handleCloseTask}
@@ -125,6 +144,10 @@ export const Component = observer(() => {
         handleClose={handleCloseRow}
         selectedRow={selectedRow}
         setOpenTaskModal={handleOpenTask}
+      />
+      <NewPlanModal
+        open={openNewPlanModal}
+        handleClose={handleCloseNewPlan}
       />
     </Box>
   );
