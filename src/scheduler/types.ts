@@ -25,3 +25,29 @@ export type ScheduleList = {
     subtitle: string,
     icon: string,
 }
+
+type Topbar = {
+  filters: string;
+  next: string;
+  prev: string;
+  today: string;
+  view: string;
+};
+type Translation = {
+  feelingEmpty: string;
+  free: string;
+  loadNext: string;
+  loadPrevious: string;
+  over: string;
+  taken: string;
+  topbar: Topbar;
+  search: string;
+  week: string;
+};
+export type LocaleType = {
+  id: string;
+  lang: Translation;
+  translateCode: string;
+  dayjsTranslations: string | undefined;
+};
+

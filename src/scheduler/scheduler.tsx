@@ -2,16 +2,41 @@ import { Scheduler } from "@bitnoi.se/react-scheduler";
 import { Box } from "@mui/material";
 import { useCallback, useState } from "react";
 import moment from "moment";
+import frDayjsTranslations from "dayjs/locale/fr";
 import { observer } from "mobx-react"
 
 import { TaskModal } from "./taskmodal";
-import { TaskData, Schedule } from "./types";
+import { TaskData, Schedule, LocaleType } from "./types";
 import { ScheduleDrawer } from "./drawer";
 import { RowModal } from "./rowmodal";
 import { NewPlanModal } from "./newplanmodal";
 import schedulesStore from "../stores/schedules.store";
 import selectedItemStore from "../stores/selectedItem.store";
 
+const langs: LocaleType[] = [
+  {
+    id: "fr",
+    lang: {
+      feelingEmpty: "Aucun calendrier n'est chargé",
+      free: "Libre",
+      loadNext: "Suivant",
+      loadPrevious: "Précédent",
+      over: "over",
+      taken: "occupé",
+      topbar: {
+        filters: "Filtres",
+        next: "suivant",
+        prev: "précédent",
+        today: "Aujourd'hui",
+        view: "Vue"
+      },
+      search: "recherche",
+      week: "Semaine"
+    },
+    translateCode: "fr-FR",
+    dayjsTranslations: frDayjsTranslations
+  }
+];
 export const Component = observer(() => {
   const [filterButtonState, setFilterButtonState] = useState(0);
 
@@ -99,6 +124,7 @@ export const Component = observer(() => {
             showTooltip: false,
             defaultTheme: "dark",
             showThemeToggle: true,
+            translations: langs,
             lang: 'fr'
           }}
         />
