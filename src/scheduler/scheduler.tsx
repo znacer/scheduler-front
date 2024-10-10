@@ -65,7 +65,7 @@ export const Component = observer(() => {
   }, []);
 
   // Filtering events that are included in current date range
-  const filteredScheduleData = schedulesStore.schedules.map((person: Schedule) => ({
+  const filteredScheduleData = schedulesStore.aslist().map((person: Schedule) => ({
     ...person,
     data: person.data.filter(
       (project: TaskData) =>
@@ -106,8 +106,7 @@ export const Component = observer(() => {
             handleOpenTask();
           }}
           onItemClick={(item) => {
-            console.log(item);
-            setSelectedRow(schedulesStore.schedules.find((schedule: Schedule) => schedule.id === item.id));
+            setSelectedRow(schedulesStore.aslist().find((schedule: Schedule) => schedule.id === item.id));
             handleOpenRow();
           }}
           onFilterData={() => {
@@ -153,4 +152,4 @@ export const Component = observer(() => {
   );
 })
 
-export default Component;
+export default SchedulerComponent;

@@ -8,6 +8,7 @@ import { Schedule } from './types';
 import { endpointCall, RouterEnum } from './endpoint';
 import schedulesStore from '../stores/schedules.store';
 import selectedItemStore from '../stores/selectedItem.store';
+import { observer } from 'mobx-react';
 
 const style = {
   position: 'absolute' as const,
@@ -30,7 +31,7 @@ interface RowModalProp {
   selectedRow: Schedule | undefined,
   setOpenTaskModal: () => void,
 }
-export function RowModal(props: RowModalProp) {
+export const RowModal = observer((props: RowModalProp) => {
   if (props.selectedRow === undefined) {
     return (
       <>
@@ -114,4 +115,4 @@ export function RowModal(props: RowModalProp) {
       </Fade>
     </Modal>
   )
-}
+});

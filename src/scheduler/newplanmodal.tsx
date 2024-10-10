@@ -7,6 +7,8 @@ import { Button, ButtonGroup, FormControl, TextField } from "@mui/material";
 import { Schedule } from './types';
 import { v4 as uuidv4 } from 'uuid';
 import { endpointCall, RouterEnum } from './endpoint';
+import schedulesListStore from '../stores/scheduleslist.store';
+import { observer } from 'mobx-react';
 
 const style = {
   position: 'absolute' as const,
@@ -27,7 +29,7 @@ interface NewPlanModalProp {
   open: boolean,
   handleClose: () => void,
 }
-export function NewPlanModal(props: NewPlanModalProp) {
+export const NewPlanModal = observer((props: NewPlanModalProp) => {
   const newSchedule: Schedule = {
     data: [],
     id: uuidv4(),
@@ -39,7 +41,11 @@ export function NewPlanModal(props: NewPlanModalProp) {
   }
 
   const handleSaveClick = () => {
-    endpointCall(RouterEnum.newSchedule, newSchedule.label);
+    endpointCall(RouterEnum.newSchedule, newSchedule.label).then(
+      () => {
+        schedulesListStore.updateList();
+      }
+    );
     props.handleClose();
   };
   const handleCancel = () => {
@@ -111,4 +117,4 @@ export function NewPlanModal(props: NewPlanModalProp) {
       </Fade>
     </Modal>
   )
-}
+});

@@ -11,7 +11,10 @@ export enum RouterEnum {
   newSchedule = "scheduler/new-schedule",
 };
 type Response = Schedule[] | ScheduleList[] | Schedule
-export async function endpointCall(route: RouterEnum, payload: object): Promise<Response> {
+export async function endpointCall(route: RouterEnum, payload: object | undefined): Promise<Response> {
+  if (payload === undefined) {
+    return [];
+  }
   let data: Response = [];
   if ([RouterEnum.fetchAll, RouterEnum.test, RouterEnum.listSchedules].indexOf(route) > -1) {
     const res = await fetch(serviceAddress + route.valueOf());

@@ -46,7 +46,24 @@ class ItemStore {
     this.item = elt;
     this.target_id = elt.id;
   }
-
+  setItemTitle(title: string) {
+    this.item.title = title
+  }
+  setItemSubtitle(subtitle: string) {
+    this.item.subtitle = subtitle
+  }
+  setItemDescription(description: string) {
+    this.item.description = description
+  }
+  setItemBgColor(color: string) {
+    this.item.bgColor = color
+  }
+  setItemStartDate(date: Date) {
+    this.item.startDate = date
+  }
+  setItemEndDate(date: Date) {
+    this.item.endDate = date
+  }
 }
 
 const selectedItemStore = new ItemStore();
