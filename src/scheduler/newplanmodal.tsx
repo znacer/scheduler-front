@@ -29,6 +29,7 @@ interface NewPlanModalProp {
   open: boolean,
   handleClose: () => void,
 }
+
 export const NewPlanModal = observer((props: NewPlanModalProp) => {
   const newSchedule: Schedule = {
     data: [],

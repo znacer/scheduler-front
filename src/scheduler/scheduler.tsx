@@ -57,6 +57,7 @@ export const SchedulerComponent = observer(() => {
   const handleOpenNewPlan = () => {
     setNewPlanModal(true);
   }
+
   const handleCloseNewPlan = () => setNewPlanModal(false);
   //layout options
   const [range, setRange] = useState({
