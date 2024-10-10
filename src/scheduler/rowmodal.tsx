@@ -1,14 +1,14 @@
-import Backdrop from '@mui/material/Backdrop';
+// import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import Typography from '@mui/material/Typography';
 import { Button, ButtonGroup, FormControl, TextField } from "@mui/material";
 import { Schedule } from './types';
-import { endpointCall, RouterEnum } from './endpoint';
 import schedulesStore from '../stores/schedules.store';
 import selectedItemStore from '../stores/selectedItem.store';
 import { observer } from 'mobx-react';
+import schedulesListStore from '../stores/scheduleslist.store';
 
 const style = {
   position: 'absolute' as const,
@@ -38,22 +38,26 @@ export const RowModal = observer((props: RowModalProp) => {
       </>
     )
   }
-  const item = { ...props.selectedRow } as Schedule;
+  const item = { ...props.selectedRow };
 
-  const handleClick = () => {
-    console.log(item);
-    endpointCall(RouterEnum.updateSchedule, item);
+  const handleApply = () => {
     schedulesStore.updateSchedule(item);
+    props.handleClose();
   };
 
   const handleNewTask = () => {
     selectedItemStore.newItem();
-    console.log(selectedItemStore.target_id)
     props.setOpenTaskModal();
     //TODO: if and only if applyied in the task modal, add the new task in the list of tasks of the schedule
 
   };
 
+  const handleDelete = () => {
+    if (props.selectedRow !== undefined) {
+      schedulesStore.removeSchedule(props.selectedRow.id);
+    }
+    props.handleClose();
+  };
   return (
     <Modal
       aria-labelledby="transition-modal-title"
@@ -61,7 +65,7 @@ export const RowModal = observer((props: RowModalProp) => {
       open={props.open}
       onClose={props.handleClose}
       closeAfterTransition
-      slots={{ backdrop: Backdrop }}
+      // slots={{ backdrop: Backdrop }}
       slotProps={{
         backdrop: {
           timeout: 500,
@@ -74,7 +78,6 @@ export const RowModal = observer((props: RowModalProp) => {
             Edit the row
           </Typography>
           <FormControl sx={{ width: '100%' }}>
-
             <TextField
               sx={{ my: 1 }}
               required
@@ -105,10 +108,10 @@ export const RowModal = observer((props: RowModalProp) => {
                 item.label.subtitle = e.target.value;
               }}
             />
-            <ButtonGroup variant="contained" aria-label="" sx={{ justifyContent: "end", mt: 2 }}>
-              <Button onClick={handleNewTask}>New Task</Button>
-              <Button color='error' onClick={() => { props.handleClose(); }}>Reset</Button>
-              <Button color='success' onClick={handleClick}>Apply</Button>
+            <ButtonGroup aria-label="" variant="contained" orientation="vertical" sx={{ mt: 2 }}>
+              <Button color='success' onClick={handleApply}>Appliquer</Button>
+              <Button color='primary' onClick={handleNewTask}>Nouvelle tâche</Button>
+              <Button color='error' onClick={handleDelete}>Supprimer</Button>
             </ButtonGroup>
           </FormControl>
         </Box>

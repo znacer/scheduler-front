@@ -11,8 +11,13 @@ class SchedulesListStore {
     makeAutoObservable(this);
   }
 
+  reset() {
+    this.list = new Map();
+  }
+
   async updateList() {
-    const data = await endpointCall(RouterEnum.listSchedules, {});
+    const data = await endpointCall(RouterEnum.listSchedules, {}) as ScheduleList[];
+    this.reset();
     runInAction(() => {
       (data as ScheduleList[]).forEach((elt: ScheduleList) => {
         this.list.set(elt.id, elt);

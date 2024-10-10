@@ -1,5 +1,7 @@
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, runInAction } from "mobx";
 import { Schedule, TaskData } from "../scheduler/types";
+import { endpointCall, RouterEnum } from "../scheduler/endpoint";
+import schedulesListStore from "./scheduleslist.store";
 
 class ScheduleStore {
 
@@ -45,8 +47,11 @@ class ScheduleStore {
     this.schedules.set(schedule_id, updatedSchedule);
   }
 
-  updateSchedule(item: Schedule) {
-    this.schedules.set(item.id, item)
+  async updateSchedule(item: Schedule) {
+    endpointCall(RouterEnum.updateSchedule, item);
+    runInAction(() => {
+      this.schedules.set(item.id, item)
+    })
   }
 
   removeTask(item: TaskData) {
@@ -60,6 +65,13 @@ class ScheduleStore {
     }
     updatedSchedule.data = updatedSchedule.data.filter((task: TaskData) => task.id !== item.id)
     this.schedules.set(updatedSchedule_id, updatedSchedule);
+  }
+
+  async removeSchedule(schedule_id: string) {
+    endpointCall(RouterEnum.removeSchedule, { "id": schedule_id });
+    runInAction(() => {
+      this.schedules.delete(schedule_id);
+    })
   }
 
   reset() {
