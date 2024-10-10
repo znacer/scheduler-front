@@ -37,7 +37,8 @@ const langs: LocaleType[] = [
     dayjsTranslations: frDayjsTranslations
   }
 ];
-export const Component = observer(() => {
+
+export const SchedulerComponent = observer(() => {
   const [filterButtonState, setFilterButtonState] = useState(0);
 
   //modals
