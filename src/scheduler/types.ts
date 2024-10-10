@@ -48,6 +48,6 @@ export type LocaleType = {
   id: string;
   lang: Translation;
   translateCode: string;
-  dayjsTranslations: string | undefined;
+  dayjsTranslations: string | ILocale | undefined;
 };
 

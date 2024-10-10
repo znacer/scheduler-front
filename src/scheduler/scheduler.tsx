@@ -2,6 +2,7 @@ import { Scheduler } from "@bitnoi.se/react-scheduler";
 import { Box } from "@mui/material";
 import { useCallback, useState } from "react";
 import moment from "moment";
+import 'dayjs/locale/fr';
 import frDayjsTranslations from "dayjs/locale/fr";
 import { observer } from "mobx-react"
 
@@ -13,7 +14,9 @@ import { NewPlanModal } from "./newplanmodal";
 import schedulesStore from "../stores/schedules.store";
 import selectedItemStore from "../stores/selectedItem.store";
 import schedulesListStore from "../stores/scheduleslist.store";
+import dayjs from "dayjs";
 
+dayjs.locale("fr");
 const langs: LocaleType[] = [
   {
     id: "fr",

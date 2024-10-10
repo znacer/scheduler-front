@@ -1,7 +1,6 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { Schedule, TaskData } from "../scheduler/types";
 import { endpointCall, RouterEnum } from "../scheduler/endpoint";
-import schedulesListStore from "./scheduleslist.store";
 
 class ScheduleStore {
 
