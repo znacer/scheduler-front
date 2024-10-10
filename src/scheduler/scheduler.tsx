@@ -12,6 +12,7 @@ import { RowModal } from "./rowmodal";
 import { NewPlanModal } from "./newplanmodal";
 import schedulesStore from "../stores/schedules.store";
 import selectedItemStore from "../stores/selectedItem.store";
+import schedulesListStore from "../stores/scheduleslist.store";
 
 const langs: LocaleType[] = [
   {
@@ -83,6 +84,7 @@ export const SchedulerComponent = observer(() => {
   const [openSideBar, setOpenSideBar] = useState(true);
 
   const toggleDrawer = (newOpen: boolean) => () => {
+    schedulesListStore.updateList();
     setOpenSideBar(newOpen);
   };
 
