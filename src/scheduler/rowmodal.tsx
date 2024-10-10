@@ -56,6 +56,7 @@ export const RowModal = observer((props: RowModalProp) => {
     if (props.selectedRow !== undefined) {
       schedulesStore.removeSchedule(props.selectedRow.id);
     }
+    schedulesListStore.updateList();
     props.handleClose();
   };
   return (
