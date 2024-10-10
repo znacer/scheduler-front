@@ -1,10 +1,11 @@
 import { ThemeProvider } from '@emotion/react'
 import './App.css'
-import { Component } from './scheduler/scheduler'
+import { SchedulerComponent } from './scheduler/scheduler'
 import { createTheme } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 import 'moment/locale/fr';
+import { observer } from 'mobx-react';
 
 declare module '@mui/material/styles' {
   interface Theme {
@@ -31,17 +32,17 @@ const theme = createTheme({
   },
 });
 
-function App() {
+const App = observer(() => {
 
   return (
     <>
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale='fr'>
-          <Component />
+          <SchedulerComponent />
         </LocalizationProvider>
       </ThemeProvider>
     </>
   )
-}
+})
 
 export default App

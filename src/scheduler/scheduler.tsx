@@ -12,6 +12,7 @@ import { RowModal } from "./rowmodal";
 import { NewPlanModal } from "./newplanmodal";
 import schedulesStore from "../stores/schedules.store";
 import selectedItemStore from "../stores/selectedItem.store";
+import schedulesListStore from "../stores/scheduleslist.store";
 
 const langs: LocaleType[] = [
   {
@@ -37,7 +38,8 @@ const langs: LocaleType[] = [
     dayjsTranslations: frDayjsTranslations
   }
 ];
-export const Component = observer(() => {
+
+export const SchedulerComponent = observer(() => {
   const [filterButtonState, setFilterButtonState] = useState(0);
 
   //modals
@@ -52,7 +54,10 @@ export const Component = observer(() => {
   const handleCloseRow = () => setOpenRowModal(false);
 
   const [openNewPlanModal, setNewPlanModal] = useState(false);
-  const handleOpenNewPlan = () => setNewPlanModal(true);
+  const handleOpenNewPlan = () => {
+    setNewPlanModal(true);
+  }
+
   const handleCloseNewPlan = () => setNewPlanModal(false);
   //layout options
   const [range, setRange] = useState({
@@ -65,7 +70,7 @@ export const Component = observer(() => {
   }, []);
 
   // Filtering events that are included in current date range
-  const filteredScheduleData = schedulesStore.schedules.map((person: Schedule) => ({
+  const filteredScheduleData = schedulesStore.aslist().map((person: Schedule) => ({
     ...person,
     data: person.data.filter(
       (project: TaskData) =>
@@ -79,6 +84,7 @@ export const Component = observer(() => {
   const [openSideBar, setOpenSideBar] = useState(true);
 
   const toggleDrawer = (newOpen: boolean) => () => {
+    schedulesListStore.updateList();
     setOpenSideBar(newOpen);
   };
 
@@ -106,8 +112,7 @@ export const Component = observer(() => {
             handleOpenTask();
           }}
           onItemClick={(item) => {
-            console.log(item);
-            setSelectedRow(schedulesStore.schedules.find((schedule: Schedule) => schedule.id === item.id));
+            setSelectedRow(schedulesStore.aslist().find((schedule: Schedule) => schedule.id === item.id));
             handleOpenRow();
           }}
           onFilterData={() => {
@@ -153,4 +158,4 @@ export const Component = observer(() => {
   );
 })
 
-export default Component;
+export default SchedulerComponent;

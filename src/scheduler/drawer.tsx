@@ -1,46 +1,35 @@
-import { Avatar, Box, Button, ButtonGroup, Checkbox, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
+import { Avatar, Box, Button, ButtonGroup, Checkbox, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import { endpointCall, RouterEnum } from "./endpoint";
 import { Schedule, ScheduleList } from "./types";
 import schedulesStore from "../stores/schedules.store";
-import { useEffect, useState } from "react";
 import { Checklist } from "@mui/icons-material";
+import schedulesListStore from "../stores/scheduleslist.store";
+import { observer } from "mobx-react";
+import checkDrawer from "../stores/checkedDrawer.store";
 
 interface ScheduleDrawerProp {
   open: boolean,
   handleClose: () => void,
   handleOpenNewPlan: () => void,
 };
-export function ScheduleDrawer(props: ScheduleDrawerProp) {
-  const [scheduleList, setScheduleList] = useState<ScheduleList[]>([]);
-  useEffect(() => {
-    endpointCall(RouterEnum.listSchedules, {}).then((data) => {
-      setScheduleList(data as ScheduleList[]);
-    })
-  }, [])
+export const ScheduleDrawer = observer((props: ScheduleDrawerProp) => {
 
-  const [checked, setChecked] = useState<number[]>([]);
-  const handleToggle = (value: number) => () => {
-    const currentIndex = checked.indexOf(value);
-    const newChecked = [...checked];
-
-    if (currentIndex === -1) {
-      newChecked.push(value);
-    } else {
-      newChecked.splice(currentIndex, 1);
-    }
-
-    setChecked(newChecked);
-  };
-
-  useEffect(() => {
-    // fetch data
+  const reloadSchedules = () => {
     schedulesStore.reset()
-    checked.forEach((idx: number) => {
-      endpointCall(RouterEnum.fetchSchedule, { "id": scheduleList[idx].id }).then((data) => {
+    checkDrawer.list.forEach((schedule_id: string) => {
+      endpointCall(RouterEnum.fetchSchedule, { "id": schedule_id }).then((data) => {
         schedulesStore.addSchedule(data as Schedule);
       })
-    })
-  }, [checked, scheduleList]);
+    });
+  }
+  const handleToggle = (uid: string) => () => {
+    if (checkDrawer.list.has(uid)) {
+      checkDrawer.uncheck(uid);
+    } else {
+      checkDrawer.check(uid);
+    }
+    reloadSchedules();
+  };
 
   return (
     <Drawer
@@ -67,7 +56,11 @@ export function ScheduleDrawer(props: ScheduleDrawerProp) {
                   <Checklist />
                 </ListItemIcon>
                 <ListItemText primary="Tout selectionner" onClick={() => {
-                  setChecked(scheduleList.map((_, idx: number) => idx));
+                  schedulesListStore.list.forEach((schedule: ScheduleList) => {
+                    checkDrawer.check(schedule.id);
+                  });
+                  reloadSchedules();
+
                 }} />
               </ListItemButton>
             </ListItem>
@@ -76,24 +69,28 @@ export function ScheduleDrawer(props: ScheduleDrawerProp) {
           <Divider />
           <List>
             {
-              scheduleList.map((schedule: ScheduleList, idx: number) => {
+              Array.from(schedulesListStore.keys()).map((schedule_id: string) => {
                 return (
                   <ListItem
-                    key={schedule.id}
+                    key={schedule_id}
                     secondaryAction={
                       <Checkbox
                         edge="end"
-                        onChange={handleToggle(idx)}
-                        checked={checked.includes(idx)}
-                        inputProps={{ 'aria-labelledby': schedule.id }}
+                        onChange={handleToggle(schedule_id)}
+                        checked={checkDrawer.list.has(schedule_id)}
+                        inputProps={{ 'aria-labelledby': schedule_id }}
                       />
                     }
                   >
                     <ListItemButton>
                       <ListItemIcon>
-                        <Avatar src={schedule.icon} />
+                        <Avatar src={schedulesListStore.list.get(schedule_id)?.icon} />
                       </ListItemIcon>
-                      <ListItemText id={schedule.id} primary={schedule.title} onClick={handleToggle(idx)} />
+                      <ListItemText
+                        id={schedule_id}
+                        primary={schedulesListStore.list.get(schedule_id)?.title}
+                        onClick={handleToggle(schedule_id)}
+                      />
                     </ListItemButton>
                   </ListItem>
                 )
@@ -103,7 +100,9 @@ export function ScheduleDrawer(props: ScheduleDrawerProp) {
         </Box>
         <ButtonGroup variant="outlined" aria-label="" sx={{ justifyContent: "center" }}>
           <Button variant="contained" onClick={props.handleOpenNewPlan}>
-            Nouvelle plannification
+            <Typography variant="button">
+              Nouvelle plannification
+            </Typography>
           </Button>
         </ButtonGroup>
       </Box>
@@ -111,4 +110,4 @@ export function ScheduleDrawer(props: ScheduleDrawerProp) {
 
   );
 
-}
+})

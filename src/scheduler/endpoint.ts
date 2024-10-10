@@ -9,9 +9,13 @@ export enum RouterEnum {
   updateSchedule = "scheduler/update-schedule",
   fetchSchedule = "scheduler/fetch-schedule",
   newSchedule = "scheduler/new-schedule",
+  removeSchedule = "scheduler/remove-schedule"
 };
 type Response = Schedule[] | ScheduleList[] | Schedule
-export async function endpointCall(route: RouterEnum, payload: object): Promise<Response> {
+export async function endpointCall(route: RouterEnum, payload: object | undefined): Promise<Response> {
+  if (payload === undefined) {
+    return [];
+  }
   let data: Response = [];
   if ([RouterEnum.fetchAll, RouterEnum.test, RouterEnum.listSchedules].indexOf(route) > -1) {
     const res = await fetch(serviceAddress + route.valueOf());
@@ -39,6 +43,17 @@ export async function endpointCall(route: RouterEnum, payload: object): Promise<
       mode: 'cors'
     });
     data = await res.json();
+  } else if ([RouterEnum.removeSchedule].indexOf(route) > -1) {
+    await fetch(serviceAddress + route.valueOf(), {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'accept': "application/json",
+        'Access-Control-Allow-Origin': '*'
+      },
+      body: JSON.stringify({ ...payload }),
+      mode: 'cors'
+    });
   }
   return data;
 }

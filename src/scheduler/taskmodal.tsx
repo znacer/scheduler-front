@@ -10,6 +10,7 @@ import { Schedule } from './types';
 import { endpointCall, endpointUpdateAllSchedules, RouterEnum } from './endpoint';
 import schedulesStore from '../stores/schedules.store';
 import selectedItemStore from '../stores/selectedItem.store';
+import { observer } from 'mobx-react';
 
 const style = {
   position: 'absolute' as const,
@@ -31,15 +32,16 @@ interface TaskModalProp {
   handleClose: () => void,
   selectedRow: Schedule | undefined,
 }
-export function TaskModal(props: TaskModalProp) {
+export const TaskModal = observer((props: TaskModalProp) => {
 
   const handleApplyClick = () => {
   };
   const handleSaveClick = () => {
     if (props.selectedRow !== undefined) {
-      const idx = schedulesStore.schedules.findIndex(elt => elt.id === props.selectedRow?.id);
-      schedulesStore.schedules[idx].data.push(selectedItemStore.item);
-      endpointCall(RouterEnum.updateSchedule, schedulesStore.schedules[idx]);
+      // const idx = schedulesStore.schedules.findIndex(elt => elt.id === props.selectedRow?.id);
+      // schedulesStore.schedules[idx].data.push(selectedItemStore.item); TODO: correct this
+      schedulesStore.addTask(props.selectedRow?.id, selectedItemStore.item);
+      endpointCall(RouterEnum.updateSchedule, schedulesStore.schedules.get(props.selectedRow?.id));
     } else {
       schedulesStore.updateTask(selectedItemStore.item);
       endpointCall(RouterEnum.updateTask, selectedItemStore.item);
@@ -48,8 +50,8 @@ export function TaskModal(props: TaskModalProp) {
   };
   const handleDelete = () => {
     if (selectedItemStore.target_id !== undefined) {
-      schedulesStore.removeTask(selectedItemStore.target_id);
-      endpointUpdateAllSchedules(schedulesStore.schedules);
+      schedulesStore.removeTask(selectedItemStore.item);
+      endpointUpdateAllSchedules(schedulesStore.aslist());
     }
     props.handleClose();
   }
@@ -82,18 +84,14 @@ export function TaskModal(props: TaskModalProp) {
               label="Nom"
               defaultValue={selectedItemStore.item.title}
               onChange={(e) => {
-                selectedItemStore.item.title = e.target.value;
+                selectedItemStore.setItemTitle(e.target.value)
               }}
             />
             <TextField
               sx={{ my: 1 }}
-              required
               id="outlined-required"
               label="ID"
               defaultValue={selectedItemStore.item.id}
-              onChange={(e) => {
-                selectedItemStore.item.id = e.target.value;
-              }}
             />
             <TextField
               sx={{ my: 1 }}
@@ -102,7 +100,7 @@ export function TaskModal(props: TaskModalProp) {
               label="subtitle"
               defaultValue={selectedItemStore.item.subtitle}
               onChange={(e) => {
-                selectedItemStore.item.subtitle = e.target.value;
+                selectedItemStore.setItemSubtitle(e.target.value);
               }}
             />
             <TextField
@@ -112,7 +110,7 @@ export function TaskModal(props: TaskModalProp) {
               label="description"
               defaultValue={selectedItemStore.item.description}
               onChange={(e) => {
-                selectedItemStore.item.description = e.target.value;
+                selectedItemStore.setItemDescription(e.target.value);
               }}
             />
 
@@ -123,7 +121,7 @@ export function TaskModal(props: TaskModalProp) {
               label="Couleur"
               defaultValue={selectedItemStore.item.bgColor}
               onChange={(e) => {
-                selectedItemStore.item.bgColor = e.target.value;
+                selectedItemStore.setItemBgColor(e.target.value);
               }}
             />
             <DateTimePicker
@@ -132,7 +130,7 @@ export function TaskModal(props: TaskModalProp) {
               defaultValue={moment(selectedItemStore.item.startDate)}
               onChange={(e) => {
                 if (e !== null) {
-                  selectedItemStore.item.startDate = new Date(e.format());
+                  selectedItemStore.setItemStartDate(new Date(e.format()));
                 }
               }}
             />
@@ -143,7 +141,7 @@ export function TaskModal(props: TaskModalProp) {
               defaultValue={moment(selectedItemStore.item.endDate)}
               onChange={(e) => {
                 if (e !== null) {
-                  selectedItemStore.item.endDate = new Date(e.format());
+                  selectedItemStore.setItemEndDate(new Date(e.format()));
                 }
               }}
             />
@@ -157,4 +155,4 @@ export function TaskModal(props: TaskModalProp) {
       </Fade>
     </Modal>
   )
-}
+})
