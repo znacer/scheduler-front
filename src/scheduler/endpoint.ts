@@ -1,6 +1,7 @@
+import configStore from "../stores/config.store";
 import { Schedule, ScheduleList } from "./types";
 
-const serviceAddress = "http://127.0.0.1:3000/";
+// const serviceAddress = url;
 export enum RouterEnum {
   fetchAll = "scheduler/fetch-all",
   listSchedules = "scheduler/list-schedules",
@@ -16,12 +17,15 @@ export async function endpointCall(route: RouterEnum, payload: object | undefine
   if (payload === undefined) {
     return [];
   }
+  if (configStore.backendUrl === "") {
+    return [];
+  }
   let data: Response = [];
   if ([RouterEnum.fetchAll, RouterEnum.test, RouterEnum.listSchedules].indexOf(route) > -1) {
-    const res = await fetch(serviceAddress + route.valueOf());
+    const res = await fetch(configStore.backendUrl + route.valueOf());
     data = await res.json();
   } else if ([RouterEnum.updateTask, RouterEnum.updateSchedule, RouterEnum.newSchedule].indexOf(route) > - 1) {
-    await fetch(serviceAddress + route.valueOf(), {
+    await fetch(configStore.backendUrl + route.valueOf(), {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -32,7 +36,7 @@ export async function endpointCall(route: RouterEnum, payload: object | undefine
       mode: 'cors'
     })
   } else if ([RouterEnum.fetchSchedule].indexOf(route) > -1) {
-    const res = await fetch(serviceAddress + route.valueOf(), {
+    const res = await fetch(configStore.backendUrl + route.valueOf(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -44,7 +48,7 @@ export async function endpointCall(route: RouterEnum, payload: object | undefine
     });
     data = await res.json();
   } else if ([RouterEnum.removeSchedule].indexOf(route) > -1) {
-    await fetch(serviceAddress + route.valueOf(), {
+    await fetch(configStore.backendUrl + route.valueOf(), {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

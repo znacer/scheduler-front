@@ -21,7 +21,7 @@ const langs: LocaleType[] = [
   {
     id: "fr",
     lang: {
-      feelingEmpty: "Aucun calendrier n'est chargé",
+      feelingEmpty: "Faire clic droit pour afficher la liste des linéaires",
       free: "Libre",
       loadNext: "Suivant",
       loadPrevious: "Précédent",
@@ -84,7 +84,7 @@ export const SchedulerComponent = observer(() => {
           moment(project.endDate).isAfter(range.endDate, "day"))
     )
   }))
-  const [openSideBar, setOpenSideBar] = useState(true);
+  const [openSideBar, setOpenSideBar] = useState(false);
 
   const toggleDrawer = (newOpen: boolean) => () => {
     schedulesListStore.updateList();
